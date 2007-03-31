@@ -1,0 +1,81 @@
+#!/bin/bash
+#
+# $Id$
+#
+#############################################################################
+# Copyright (C) 2005
+#   
+# Michiel Broek               <mbse@mbse.dds.nl>
+# Beekmansbos 10
+# 1971 BV IJmuiden
+# the Netherlands
+#
+# This file is part of SlackSecCheckSripts.
+#
+# This package is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any
+# later version.
+#
+# SlackSecCheckSripts is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with MBSE BBS; see the file COPYING.  If not, write to the Free
+# Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+#############################################################################
+
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+umask 077
+TZ=UTC; export TZ
+LANG=C; export LANG
+
+SECUREDIR=`mktemp -d /tmp/_securedir.XXXXXX` || exit 1
+
+trap "/bin/rm -rf $SECUREDIR ; exit 0" EXIT INT QUIT PIPE
+
+if ! cd "$SECUREDIR"; then
+        echo "Can not cd to $SECUREDIR".
+        exit 1
+fi
+
+max_grouplen=${max_grouplen:-16}
+OUTPUT=secure1.$$
+
+# Check group file
+#
+GRP=/etc/group
+awk -F: -v "len=$max_grouplen" '{
+    if ($0 ~ /^[     ]*$/) {
+	printf "\tLine %d is a blank line.\n", NR;
+	next;
+    }
+    if (NF != 4 && ($1 != "+" || NF != 1))
+	printf "\tLine %d has the wrong number of fields.\n", NR;
+    if ($1 == "+" )  {
+	next;
+    }
+    if ($1 !~ /^[A-Za-z0-9]([-A-Za-z0-9]*[A-Za-z0-9])*$/)
+	printf "\tGroup %s has non-alphanumeric characters.\n",
+	$1;
+    if (length($1) > len)
+	printf "\tGroup %s has more than "len" characters.\n", $1;
+    if ($3 !~ /[0-9]*/)
+	printf "\tLogin %s has a negative group id.\n", $1;
+}' < $GRP > $OUTPUT
+if [ -s $OUTPUT ] ; then
+    printf "\nChecking the $GRP file:\n"
+    cat $OUTPUT
+fi
+
+awk -F: '{ print $1 }' $GRP | sort | uniq -d > $OUTPUT
+if [ -s $OUTPUT ] ; then
+    printf "\n\t$GRP has duplicate group names.\n"
+    column $OUTPUT
+fi
+
+
