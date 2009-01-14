@@ -1,0 +1,138 @@
+#!/bin/bash
+#
+# $Id$
+#
+#############################################################################
+# Copyright (C) 2005
+#   
+# Michiel Broek               <mbse@mbse.dds.nl>
+# Beekmansbos 10
+# 1971 BV IJmuiden
+# the Netherlands
+#
+# This file is part of SlackSecCheckSripts.
+#
+# This package is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any
+# later version.
+#
+# SlackSecCheckSripts is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with MBSE BBS; see the file COPYING.  If not, write to the Free
+# Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+#############################################################################
+
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+umask 077
+TZ=UTC; export TZ
+LANG=C; export LANG
+
+max_loginlen=${max_loginlen:-32}
+
+MP=/etc/passwd
+SP=/etc/shadow
+
+
+SECUREDIR=`mktemp -d /tmp/_securedir.XXXXXX` || exit 1
+
+trap "/bin/rm -rf $SECUREDIR ; exit 0" EXIT INT QUIT PIPE
+
+if ! cd "$SECUREDIR"; then
+        echo "Can not cd to $SECUREDIR".
+        exit 1
+fi
+
+TMP2=secure1.$$
+MPBYUID=secure2.$$
+COMBINED=secure3.$$
+OUTPUT=secure4.$$
+
+# Combine passwd and shadow files.
+#
+join -t : -j 1 $MP $SP > $COMBINED
+
+
+# These are used several times.
+#
+awk -F: '!/^+/ { print $1 " " $3 }' $MP | sort -k2n > $MPBYUID
+
+
+# Check the master password file syntax.
+# Usernames may have a $ character at the end for Samba
+# machine and trust accounts.
+#
+awk -v "len=$max_loginlen" '
+    BEGIN {
+	while ( getline < "/etc/shells" > 0 ) {
+	    if ($0 ~ /^\#/ || $0 ~ /^$/ )
+		continue;
+	    shells[$1]++;
+	}
+	FS=":";
+    }
+
+    {
+        if ($0 ~ /^[     ]*$/) {
+            printf "\tLine %d is a blank line.\n", NR;
+            next;
+        }
+        if (NF != 15 && ($1 != "+" || NF != 1))
+            printf "\tLine %d has the wrong number of fields.\n", NR;
+        if ($1 == "+" )  {
+            if (NF != 1 && $3 == 0)
+                printf "\tLine %d includes entries with uid 0.\n", NR;
+            next;
+        }
+        if ($1 !~ /^[A-Za-z0-9]([-A-Za-z0-9]*[A-Za-z0-9\$])*$/)
+            printf "\tLogin %s has non-alphanumeric characters.\n", $1;
+        if (length($1) > len)
+            printf "\tLogin %s has more than "len" characters.\n", $1;
+	if ($7 == "" && $8 !~ /!/ && $8 != "*")
+	    printf "\tLogin %s does not have a shell\n", $1;
+        if ($7 != "" && ! shells[$7] && $8 !~ /!/ && $8 != "*")
+            printf "\tLogin %s does not have a valid shell (%s)\n", $1, $7;
+	if ($7 != "" && shells[$7] && ($8 ~ /!/ && $8 = "*"))
+	    printf "\tLogin %s account is locked.\n", $1;
+	if ($8 == "")
+	    printf "\tLogin %s has no password.\n", $1;
+	if ($9 == "0")
+	    printf "\tLogin %s password is expired.\n", $1;
+        if ($3 == 0 && $1 != "root" && $1 != "toor")
+            printf "\tLogin %s has a user id of 0.\n", $1;
+        if ($3 < 0)
+            printf "\tLogin %s has a negative user id.\n", $1;
+	if ($4 < 0)
+            printf "\tLogin %s has a negative group id.\n", $1;
+    }' < $COMBINED > $OUTPUT
+if [ -s $OUTPUT ] ; then
+    printf "\nChecking the $MP and $SP files:\n"
+    cat $OUTPUT
+fi
+
+awk -F: '{ print $1 }' $MP | sort | uniq -d > $OUTPUT
+if [ -s $OUTPUT ] ; then
+    printf "\n$MP has duplicate user names.\n"
+    column $OUTPUT
+fi
+
+# To not exclude 'toor', a standard duplicate root account, from the duplicate
+# account test, uncomment the line below (without egrep in it)and comment
+# out the line (with egrep in it) below it.
+#
+#< $MPBYUID uniq -d -f 1 | awk '{ print $2 }' > $TMP2
+< $MPBYUID egrep -v '^toor ' | uniq -d -f 1 | awk '{ print $2 }' > $TMP2
+if [ -s $TMP2 ] ; then
+    printf "\n$MP has duplicate user id's.\n"
+    while read uid; do
+        grep -w $uid $MPBYUID
+    done < $TMP2 | column
+fi
+
+
