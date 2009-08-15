@@ -52,9 +52,15 @@ MPBYUID=secure2.$$
 COMBINED=secure3.$$
 OUTPUT=secure4.$$
 
+
 # Combine passwd and shadow files.
 #
-join --nocheck-order -t : -j 1 $MP $SP > $COMBINED
+JOPT=$( join --help | grep "\--nocheck-order")
+if [ -z "$JOPT" ]; then
+    join -t : -j 1 $MP $SP > $COMBINED
+else
+    join --nocheck-order -t : -j 1 $MP $SP > $COMBINED
+fi
 
 
 # These are used several times.
