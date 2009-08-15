@@ -1,9 +1,7 @@
 #!/bin/bash
 #
-# $Id$
-#
 #############################################################################
-# Copyright (C) 2005-2007
+# Copyright (C) 2005-2009
 #   
 # Michiel Broek               <mbse@mbse.eu>
 # Beekmansbos 10
@@ -50,7 +48,7 @@ BACK=${backup_dir}/setid.backup
 TMP1=$SECUREDIR/tmp1
 TMP2=$SECUREDIR/tmp2
 TMP3=$SECUREDIR/tmp3
-FSS=`egrep ^\/dev\/ /etc/mtab | awk '{ print $2 }'`
+FSS=$( egrep "^\/dev\/| tmpfs" /etc/mtab | awk '{ print $2 }' )
 
 
 if [ ! -f $CURR ]; then
