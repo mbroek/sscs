@@ -1,9 +1,7 @@
 #!/bin/bash
 #
-# $Id$
-#
 #############################################################################
-# Copyright (C) 2005
+# Copyright (C) 2005-2009
 #   
 # Michiel Broek               <mbse@mbse.dds.nl>
 # Beekmansbos 10
@@ -50,13 +48,18 @@ if [ -x /usr/sbin/smartctl ] && [ -f /etc/smartd.conf ]; then
 	printf "\nWarning: smartd is not running.\n"
     fi
 
-    DISKS=`egrep '^[^#]*(dev)' /etc/smartd.conf | awk '{ print $1 }'`
+    DISKS=$( egrep '^[^#]*(dev)' /etc/smartd.conf | awk '{ print $1 }' )
     for f in $DISKS ; do
 	# /usr/sbin/smartctl -H -i -l error -l selftest $f
 	/usr/sbin/smartctl -q errorsonly -H -l error $f > $TMP
 	if [ -s $TMP ]; then
 	    printf "\nS.M.A.R.T. error information for disk %s\n\n" $f
 	    cat $TMP
+	fi
+	# Most harddisk manufactures specify 60 degrees Celsius, warn a little below that
+	TEMP=$( /usr/sbin/smartctl -A $f | grep ^194 | awk '{ print $10 }' )
+	if [ ! -z "$TEMP" ] && [ ${TEMP} -ge 53 ]; then
+	    printf "\nS.M.A.R.T. high temperature for disk %s, %s degrees Celsius\n" $f $TEMP
 	fi
     done
 fi
