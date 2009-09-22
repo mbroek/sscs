@@ -94,7 +94,7 @@ awk -v "len=$max_loginlen" '
                 printf "\tLine %d includes entries with uid 0.\n", NR;
             next;
         }
-        if ($1 !~ /^[A-Za-z0-9]([-A-Za-z0-9]*[A-Za-z0-9\$])*$/)
+        if ($1 !~ /^[A-Za-z0-9]([-A-Za-z0-9_]*[A-Za-z0-9\$])*$/)
             printf "\tLogin %s has non-alphanumeric characters.\n", $1;
         if (length($1) > len)
             printf "\tLogin %s has more than "len" characters.\n", $1;
