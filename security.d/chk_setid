@@ -1,21 +1,19 @@
 #!/bin/bash
 #
 #############################################################################
-# Copyright (C) 2005-2009
+# Copyright (C) 2005-2012
 #   
 # Michiel Broek               <mbse@mbse.eu>
-# Beekmansbos 10
-# 1971 BV IJmuiden
 # the Netherlands
 #
-# This file is part of SlackSecCheckSripts.
+# This file is part of SlackSecCheckScripts.
 #
 # This package is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any
 # later version.
 #
-# SlackSecCheckSripts is distributed in the hope that it will be useful, but
+# SlackSecCheckScripts is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.

@@ -1,23 +1,21 @@
 #!/bin/bash
 #
-# $Id$
-#
 #############################################################################
-# Copyright (C) 2005
+# Copyright (C) 2005-2012
 #   
 # Michiel Broek               <mbse@mbse.dds.nl>
 # Beekmansbos 10
 # 1971 BV IJmuiden
 # the Netherlands
 #
-# This file is part of SlackSecCheckSripts.
+# This file is part of SlackSecCheckScripts.
 #
 # This package is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2, or (at your option) any
 # later version.
 #
-# SlackSecCheckSripts is distributed in the hope that it will be useful, but
+# SlackSecCheckScripts is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
@@ -48,34 +46,9 @@ OUTPUT=secure1.$$
 
 # Check group file
 #
-GRP=/etc/group
-awk -F: -v "len=$max_grouplen" '{
-    if ($0 ~ /^[     ]*$/) {
-	printf "\tLine %d is a blank line.\n", NR;
-	next;
-    }
-    if (NF != 4 && ($1 != "+" || NF != 1))
-	printf "\tLine %d has the wrong number of fields.\n", NR;
-    if ($1 == "+" )  {
-	next;
-    }
-    if ($1 !~ /^[A-Za-z0-9]([-A-Za-z0-9]*[A-Za-z0-9])*$/)
-	printf "\tGroup %s has non-alphanumeric characters.\n",
-	$1;
-    if (length($1) > len)
-	printf "\tGroup %s has more than "len" characters.\n", $1;
-    if ($3 !~ /[0-9]*/)
-	printf "\tLogin %s has a negative group id.\n", $1;
-}' < $GRP > $OUTPUT
+grpck -r > $OUTPUT
 if [ -s $OUTPUT ] ; then
     printf "\nChecking the $GRP file:\n"
     cat $OUTPUT
 fi
-
-awk -F: '{ print $1 }' $GRP | sort | uniq -d > $OUTPUT
-if [ -s $OUTPUT ] ; then
-    printf "\n\t$GRP has duplicate group names.\n"
-    column $OUTPUT
-fi
-
 
