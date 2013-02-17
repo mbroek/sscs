@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #############################################################################
-# Copyright (C) 2005-2012
+# Copyright (C) 2005-2013
 #   
-# Michiel Broek               <mbse@mbse.dds.nl>
+# Michiel Broek               <mbse at mbse.eu>
 # the Netherlands
 #
 # This file is part of SlackSecCheckScripts.
@@ -41,15 +41,16 @@ fi
 
 TMP2=secure1.$$
 OUTPUT=secure4.$$
+YESTER=$(date '+%b %d' -d yesterday)
 
-egrep ' useradd\[' /var/log/secure > $TMP2
-egrep ' userdel\[' /var/log/secure >> $TMP2
-egrep ' usermod\[' /var/log/secure >> $TMP2
-egrep ' groupadd\[' /var/log/secure >> $TMP2
-egrep ' groupdel\[' /var/log/secure >> $TMP2
-egrep ' groupmod\[' /var/log/secure >> $TMP2
-egrep ' passwd\[' /var/log/secure >> $TMP2
-egrep ' sudo:' /var/log/messages >> $TMP2
+grep -e ' useradd\[' /var/log/secure | grep -e "${YESTER}" > $TMP2
+grep -e ' userdel\[' /var/log/secure | grep -e "${YESTER}" >> $TMP2
+grep -e ' usermod\[' /var/log/secure | grep -e "${YESTER}" >> $TMP2
+grep -e ' groupadd\[' /var/log/secure | grep -e "${YESTER}" >> $TMP2
+grep -e ' groupdel\[' /var/log/secure | grep -e "${YESTER}" >> $TMP2
+grep -e ' groupmod\[' /var/log/secure | grep -e "${YESTER}" >> $TMP2
+grep -e ' passwd\[' /var/log/secure | grep -e "${YESTER}" >> $TMP2
+grep -e ' sudo:' /var/log/messages | grep -e "${YESTER}" >> $TMP2
 
 cat $TMP2 | sort > $OUTPUT
 
