@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #############################################################################
-# Copyright (C) 2005-2012
+# Copyright (C) 2005-2013
 #   
-# Michiel Broek               <mbse@mbse.eu>
+# Michiel Broek               <mbse at mbse.eu>
 # the Netherlands
 #
 # This file is part of SlackSecCheckScripts.
@@ -44,7 +44,7 @@ OUTPUT=secure1.$$
 
 # Mailboxes should be owned by user and unreadable.
 #
-/bin/ls -l /var/spool/mail | \
+/bin/ls -l /var/spool/mail | grep -v ^d | \
 awk '   NR == 1 { next; }
     $3 != $9 {
 	printf "\tUser %s mailbox is owned by %s.\n", $9, $3

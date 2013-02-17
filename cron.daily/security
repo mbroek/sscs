@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #############################################################################
-# Copyright (C) 2005-2009
+# Copyright (C) 2005-2013
 #   
-# Michiel Broek               <mbse@mbse.dds.nl>
+# Michiel Broek               <mbse at mbse.eu>
 # Beekmansbos 10
 # 1971 BV IJmuiden
 # the Netherlands
@@ -25,7 +25,7 @@
 # Software Foundation, 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 #############################################################################
 
-VERSION=0.15
+VERSION=0.16
 export PATH=/bin:/usr/bin:/sbin:/usr/sbin
 umask 077
 LANG=C; export LANG
