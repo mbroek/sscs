@@ -1,12 +1,9 @@
 #!/bin/bash
 #
 #############################################################################
-# Copyright (C) 2005-2012
+# Copyright (C) 2005-2013
 #   
-# Michiel Broek               <mbse@mbse.dds.nl>
-# Beekmansbos 10
-# 1971 BV IJmuiden
-# the Netherlands
+# Michiel Broek               <mbse at mbse.eu>
 #
 # This file is part of SlackSecCheckScripts.
 #

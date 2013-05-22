@@ -1,12 +1,9 @@
 #!/bin/bash
 #
 #############################################################################
-# Copyright (C) 2005-2012
+# Copyright (C) 2005-2013
 #   
-# Michiel Broek               <mbse@mbse.eu>
-# Beekmansbos 10
-# 1971 BV IJmuiden
-# the Netherlands
+# Michiel Broek               <mbse at mbse.eu>
 #
 # This file is part of SlackSecCheckScripts.
 #
@@ -102,7 +99,7 @@ awk -v "len=$max_loginlen" '
 	    printf "\tLogin %s does not have a shell\n", $1;
         if ($7 != "" && ! shells[$7] && $8 !~ /!/ && $8 != "*")
             printf "\tLogin %s does not have a valid shell (%s)\n", $1, $7;
-	if ($7 != "" && shells[$7] && ($8 ~ /!/ && $8 = "*"))
+	if ($7 != "" && shells[$7] && ($8 ~ /!/ && $8 = "*") && ($4 == 100))
 	    printf "\tLogin %s account is locked.\n", $1;
 	if ($8 == "")
 	    printf "\tLogin %s has no password.\n", $1;
