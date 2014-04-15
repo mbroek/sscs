@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #############################################################################
-# Copyright (C) 2005-2013
+# Copyright (C) 2005-2014
 #   
 # Michiel Broek               <mbse at mbse.eu>
 #
@@ -28,7 +28,7 @@ umask 077
 TZ=UTC; export TZ
 LANG=C; export LANG
 
-SECUREDIR=`mktemp -d /tmp/_securedir.XXXXXX` || exit 1
+SECUREDIR=$(mktemp -d /tmp/_securedir.XXXXXX) || exit 1
 
 trap "/bin/rm -rf $SECUREDIR ; exit 0" EXIT INT QUIT PIPE
 
@@ -50,14 +50,14 @@ FSS=$( egrep "^\/dev\/| tmpfs" /etc/mtab | awk '{ print $2 }' )
 
 if [ ! -f $CURR ]; then
     # No database, install new database
-    find $FSS \( -mount \( -perm -u+s -a ! -type d \) -o \( -perm -g+s -a ! -type d \) \) -print0 | \
+    find $FSS \( -mount \( -perm -u+s -a ! -type d \) -o \( -perm -g+s -a ! -type d \) \) -print0 2>/dev/null | \
 	xargs -0 /bin/ls -ld --full-time | sort -k9 > $CURR
     exit
 fi
 
 # Database is present, create temp database
 #
-find $FSS \( -mount \( -perm -u+s -a ! -type d \) -o \( -perm -g+s -a ! -type d \) \) -print0 | \
+find $FSS \( -mount \( -perm -u+s -a ! -type d \) -o \( -perm -g+s -a ! -type d \) \) -print0 2>/dev/null | \
     xargs -0 /bin/ls -ld --full-time | sort -k9 > $TMP1
 changed=0
 
