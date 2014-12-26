@@ -51,14 +51,14 @@ FSS=$( egrep "^\/dev\/| tmpfs" /etc/mtab | awk '{ print $2 }' )
 if [ ! -f $CURR ]; then
     # No database, install new database
     find $FSS \( -mount \( -perm -u+s -a ! -type d \) -o \( -perm -g+s -a ! -type d \) \) -print0 2>/dev/null | \
-	xargs -0 /bin/ls -ld --full-time | sort -k9 > $CURR
+	xargs -0r /bin/ls -ld --full-time | sort -k9 > $CURR
     exit
 fi
 
 # Database is present, create temp database
 #
 find $FSS \( -mount \( -perm -u+s -a ! -type d \) -o \( -perm -g+s -a ! -type d \) \) -print0 2>/dev/null | \
-    xargs -0 /bin/ls -ld --full-time | sort -k9 > $TMP1
+    xargs -0r /bin/ls -ld --full-time | sort -k9 > $TMP1
 changed=0
 
 diff $TMP1 $CURR > $TMP2
